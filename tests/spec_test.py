@@ -6,7 +6,7 @@ import nose
 import six
 from nose.plugins import PluginTester
 
-from spec import Spec
+from spec.plugin import SpecPlugin
 
 
 def _prepend_in_each_line(string, prefix='    '):
@@ -14,9 +14,9 @@ def _prepend_in_each_line(string, prefix='    '):
 
 
 class _SpecPluginTestCase(PluginTester, unittest.TestCase):
-    activate = '--with-spec'
+    activate = '--with-specplugin'
     args = ['--no-spec-color']
-    plugins = [Spec()]
+    plugins = [SpecPlugin()]
 
     def _get_suitepath(self):
         return '_spec_test_cases/%s.py' % self.suitename
@@ -73,7 +73,7 @@ class TestPluginSpecWithFoobaz(_SpecPluginTestCase):
 # Make sure DEPRECATED and SKIPPED are still present in the output when set
 # of standard nose plugins is enabled.
 class TestPluginSpecWithFoobazAndStandardPluginsEnabled(TestPluginSpecWithFoobaz):
-    plugins = [Spec(), nose.plugins.skip.Skip(), nose.plugins.deprecated.Deprecated()]
+    plugins = [SpecPlugin(), nose.plugins.skip.Skip(), nose.plugins.deprecated.Deprecated()]
 
 
 class TestPluginSpecWithContainers(_SpecPluginTestCase):
@@ -131,9 +131,9 @@ class TestPluginSpecWithTestGeneratorsWithDescriptions(_SpecPluginTestCase):
 
 
 class TestPluginSpecWithDoctests(_SpecPluginTestCase):
-    activate = '--with-spec'
+    activate = '--with-specplugin'
     args = ['--with-doctest', '--doctest-tests', '--spec-doctests', '--no-spec-color']
-    plugins = [Spec(), nose.plugins.doctests.Doctest()]
+    plugins = [SpecPlugin(), nose.plugins.doctests.Doctest()]
 
     suitename = 'doctests'
     expected_test_doctests_output = """doctests
@@ -147,11 +147,11 @@ class TestPluginSpecWithDoctests(_SpecPluginTestCase):
 
 
 class TestPluginSpecWithDoctestsButDisabled(_SpecPluginTestCase):
-    activate = '--with-spec'
+    activate = '--with-specplugin'
 
     # no --spec-doctests option
     args = ['--with-doctest', '--doctest-tests', '--no-spec-color']
-    plugins = [Spec(), nose.plugins.doctests.Doctest()]
+    plugins = [SpecPlugin(), nose.plugins.doctests.Doctest()]
     suitename = 'doctests'
 
     def test_doesnt_build_specifications_for_doctests_when_spec_doctests_option_wasnt_set(self):

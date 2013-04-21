@@ -268,9 +268,9 @@ class SpecOutputStream(OutputStream):
         context._printed = True
 
     def print_spec(self, color_func, test, status=None):
-        spec = testDescription(test).strip()
+        spec = testDescription(test)
         if not isinstance(spec, types.GeneratorType):
-            spec = [spec]
+            spec = [spec.strip()]
         for s in spec:
             name = "- %s" % s
             paren = (" (%s)" % status) if status else ""
@@ -317,7 +317,7 @@ class SpecPlugin(Plugin):
         parser.add_option('--no-spec-color', action='store_true',
                           dest='no_spec_color',
                           default=env.get('NOSE_NO_SPEC_COLOR'),
-                          help="Don't show colors with --with-spec"
+                          help="Don't show colors with --with-specplugin"
                           "[NOSE_NO_SPEC_COLOR]")
         parser.add_option('--spec-doctests', action='store_true',
                           dest='spec_doctests',
@@ -375,7 +375,7 @@ class SpecPlugin(Plugin):
         self._print_spec('ok', test)
 
     def addFailure(self, test, err):
-        self._print_spec('failure', test, '')
+        self._print_spec('failure', test, 'FAILED')
         self._failures.append((test, err))
 
     def addError(self, test, err):
@@ -384,12 +384,16 @@ class SpecPlugin(Plugin):
 
         klass = err[0]
         if issubclass(klass, nose.DeprecatedTest):
-            blurt('deprecated', '')
+            blurt('deprecated', 'DEPRECATED')
         elif issubclass(klass, SkipTest):
-            blurt('skipped', '')
+            blurt('skipped', 'SKIPPED')
         else:
             self._errors.append((test, err))
-            blurt('error', '')
+            # test attribute may not be set if setup fails.
+            if not hasattr(test, 'test'):
+                self._print_context(test.context)
+            else:
+                blurt('error', 'ERROR')
 
     def afterTest(self, test):
         self.stream.capture()
@@ -463,7 +467,9 @@ class SpecPlugin(Plugin):
         ), file=self.stream)
         # Did we fail, and if so, how badly?
         if success:
-            skipped = len(result.skipped)
+            skipped=0
+            if hasattr(result, 'skipped'):
+                skipped = len(result.skipped)
             skipped_str = "(" + self.skipped("%i skipped" % skipped) + ")"
             six.print_(self.ok("OK"), skipped_str if skipped else "", file=self.stream)
         else:
@@ -474,6 +480,8 @@ class SpecPlugin(Plugin):
             )
             pairs = []
             for label, color in types:
+                if not hasattr(result, label):
+                    continue
                 num = len(getattr(result, label))
                 text = six.text_type(num)
                 if num:

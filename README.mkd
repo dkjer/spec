@@ -58,7 +58,7 @@ normally tests like so, in a single flat list:
     TestSquare.test_has_sides_of_equal_length ... ok
     TestSquare.test_is_a_shape ... ok
 
-With `spec` enabled (`--with-spec`), the tests are visually grouped by class,
+With `spec` enabled (`--with-specplugin`), the tests are visually grouped by class,
 and the member names are tweaked to read more like regular English:
 
     Shape
@@ -241,7 +241,7 @@ MyOtherClass
 After installation via `setup.py`, `pip` or what have you, `nosetests` will
 expose these new additional options/flags:
 
-* `--with-spec`: enables the plugin and prints out your tests in specification
+* `--with-specplugin`: enables the plugin and prints out your tests in specification
   format. Also automatically sets `--verbose` (i.e. the spec output is a
   verbose format.)
 * `--no-spec-color`: disables color output. Normally, successes are green,
